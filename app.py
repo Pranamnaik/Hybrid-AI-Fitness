@@ -2,11 +2,30 @@ import streamlit as st
 from datetime import date
 import db
 import pandas as pd
+import posture_expression
+import time
+
+
+
 
 st.set_page_config(page_title="Hybrid AI Fitness Tracker", layout="wide")
 db.init_db()
 
 st.title("💪 Hybrid AI Fitness & Wellness Tracker")
+
+if st.button("🧠 Start AI Posture & Emotion Detection"):
+    st.write("Initializing camera... press 'q' in camera window to stop.")
+    # Run detector and return a summary dict when user quits camera
+    summary = posture_expression.detect_webcam_feed()
+    # Show summary
+    st.success("Session finished — summary saved.")
+    st.write("Session Summary:")
+    st.json(summary)
+    # optionally show some quick metrics nicely
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Duration (s)", summary.get("duration_seconds", 0))
+    col2.metric("Frames", summary.get("frames", 0))
+    col3.metric("Dominant emotion", summary.get("dominant_emotion", "Unknown"))
 
 # --- Log Form ---
 st.sidebar.header("📝 Log Your Day")
