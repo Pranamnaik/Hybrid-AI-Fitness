@@ -3,7 +3,6 @@ from datetime import date
 import db
 import pandas as pd
 import posture_expression
-import time
 
 
 
