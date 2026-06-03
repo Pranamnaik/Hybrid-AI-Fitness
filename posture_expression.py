@@ -34,7 +34,9 @@ def analyze_expression(frame):
         # result may be dict or list depending on version; handle both
         if isinstance(result, list):
             result = result[0]
-        emotion = result.get("dominant_emotion") or result.get("dominant_emotion", "Unknown")
+        emotion = result.get("dominant_emotion") or result.get(
+            "dominant_emotion", "Unknown"
+        )
         return emotion.capitalize()
     except Exception:
         return "Unknown"
@@ -81,7 +83,10 @@ def detect_webcam_feed(alert_thresholds=None, max_duration_seconds=None):
     Returns session_summary dict.
     """
     if alert_thresholds is None:
-        alert_thresholds = {"consecutive_bad_posture": 8, "emotion_alert": ["tired", "sad", "angry", "fear"]}
+        alert_thresholds = {
+            "consecutive_bad_posture": 8,
+            "emotion_alert": ["tired", "sad", "angry", "fear"],
+        }
 
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
@@ -110,7 +115,9 @@ def detect_webcam_feed(alert_thresholds=None, max_duration_seconds=None):
 
             # analyze posture and emotion (emotion is slower - consider running less frequently)
             posture = analyze_posture(frame, pose)
-            emotion = analyze_expression(frame) if total_frames % 5 == 0 else "Skip"  # emotion every 5 frames
+            emotion = (
+                analyze_expression(frame) if total_frames % 5 == 0 else "Skip"
+            )  # emotion every 5 frames
 
             # update counts
             if posture == "Good":
@@ -127,10 +134,14 @@ def detect_webcam_feed(alert_thresholds=None, max_duration_seconds=None):
 
             # voice alerts for posture (if bad for N consecutive frames)
             now = time.time()
-            if consecutive_bad_posture >= alert_thresholds.get("consecutive_bad_posture", 8):
+            if consecutive_bad_posture >= alert_thresholds.get(
+                "consecutive_bad_posture", 8
+            ):
                 # avoid spamming: only alert if >5s since last alert
                 if now - last_posture_alert_time > 5:
-                    _speak("Please straighten your back and keep your shoulders aligned.")
+                    _speak(
+                        "Please straighten your back and keep your shoulders aligned."
+                    )
                     last_posture_alert_time = now
                     consecutive_bad_posture = 0  # reset to avoid repeated alerts
 
@@ -140,31 +151,51 @@ def detect_webcam_feed(alert_thresholds=None, max_duration_seconds=None):
                 if dominant_lower in alert_thresholds.get("emotion_alert", []):
                     # speak once per 8 seconds for emotions
                     if now - last_posture_alert_time > 8:
-                        _speak(f"I notice you seem {emotion}. Consider taking a short break.")
+                        _speak(
+                            f"I notice you seem {emotion}. Consider taking a short break."
+                        )
                         last_posture_alert_time = now
 
             # display overlay text
             display_emotion = emotion if emotion != "Skip" else ""
             text = f"Posture: {posture}  {display_emotion}"
-            cv2.putText(frame, text, (15, 35), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (30, 200, 30), 2)
+            cv2.putText(
+                frame, text, (15, 35), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (30, 200, 30), 2
+            )
 
             # draw pose landmarks for feedback
-            if pose and hasattr(results := pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)), "pose_landmarks") and results.pose_landmarks:
-                mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+            if (
+                pose
+                and hasattr(
+                    results := pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)),
+                    "pose_landmarks",
+                )
+                and results.pose_landmarks
+            ):
+                mp_drawing.draw_landmarks(
+                    frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS
+                )
 
             cv2.imshow("AI Fitness Coach (press q to end)", frame)
 
             # quit logic
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
-            if max_duration_seconds and (time.time() - start_time) > max_duration_seconds:
+            if (
+                max_duration_seconds
+                and (time.time() - start_time) > max_duration_seconds
+            ):
                 break
 
     cap.release()
     cv2.destroyAllWindows()
 
     # compose session summary
-    top_emotion = max(emotion_counts.items(), key=lambda x: x[1])[0] if emotion_counts else "Unknown"
+    top_emotion = (
+        max(emotion_counts.items(), key=lambda x: x[1])[0]
+        if emotion_counts
+        else "Unknown"
+    )
     duration = int(time.time() - start_time)
     summary = {
         "session_start": session_start,

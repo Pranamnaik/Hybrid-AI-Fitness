@@ -5,8 +5,6 @@ import pandas as pd
 import posture_expression
 
 
-
-
 st.set_page_config(page_title="Hybrid AI Fitness Tracker", layout="wide")
 db.init_db()
 
@@ -30,16 +28,32 @@ if st.button("🧠 Start AI Posture & Emotion Detection"):
 st.sidebar.header("📝 Log Your Day")
 with st.sidebar.form("log_form"):
     log_date = st.date_input("Date", value=date.today())
-    workout_type = st.selectbox("Workout Type", ["None", "Cardio", "Strength", "Yoga", "Other"])
-    workout_minutes = st.number_input("Workout Minutes", min_value=0, max_value=600, value=0)
-    calories_intake = st.number_input("Calories Consumed", min_value=0, max_value=10000, value=2000)
-    sleep_hours = st.number_input("Sleep Hours", min_value=0.0, max_value=24.0, value=7.0)
+    workout_type = st.selectbox(
+        "Workout Type", ["None", "Cardio", "Strength", "Yoga", "Other"]
+    )
+    workout_minutes = st.number_input(
+        "Workout Minutes", min_value=0, max_value=600, value=0
+    )
+    calories_intake = st.number_input(
+        "Calories Consumed", min_value=0, max_value=10000, value=2000
+    )
+    sleep_hours = st.number_input(
+        "Sleep Hours", min_value=0.0, max_value=24.0, value=7.0
+    )
     mood_score = st.slider("Mood Score (1 = worst, 10 = best)", 1, 10, 7)
     mood_text = st.text_input("Describe your mood (optional)")
     submitted = st.form_submit_button("Save Entry")
 
 if submitted:
-    db.insert_log(log_date.isoformat(), workout_type, workout_minutes, calories_intake, sleep_hours, mood_score, mood_text)
+    db.insert_log(
+        log_date.isoformat(),
+        workout_type,
+        workout_minutes,
+        calories_intake,
+        sleep_hours,
+        mood_score,
+        mood_text,
+    )
     st.success("✅ Log saved successfully!")
 
 # --- Display Data ---
@@ -60,7 +74,7 @@ if corr_matrix is None:
     st.info("Not enough data yet to compute correlations. Log a few more days!")
 else:
     st.write("### Correlation Matrix")
-    st.dataframe(corr_matrix.style.background_gradient(cmap='coolwarm'))
+    st.dataframe(corr_matrix.style.background_gradient(cmap="coolwarm"))
 
     st.write("### Detailed Relationships (Top Insights)")
     df_corr = pd.DataFrame(corr_details)
@@ -69,7 +83,9 @@ else:
 
     top = df_corr.iloc[0]
     relation = "positive" if top.r_value > 0 else "negative"
-    st.success(f"✅ Strong {relation} correlation found between {top.var1} and {top.var2} (r = {top.r_value})")
+    st.success(
+        f"✅ Strong {relation} correlation found between {top.var1} and {top.var2} (r = {top.r_value})"
+    )
 
     # Basic summary stats
     st.subheader("Summary")

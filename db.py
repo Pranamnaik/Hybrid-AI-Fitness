@@ -5,12 +5,13 @@ import os
 DB_DIR = "data"
 DB_PATH = os.path.join(DB_DIR, "fitness.db")
 
+
 def init_db():
     # ensure data dir exists
     os.makedirs(DB_DIR, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''
+    c.execute("""
     CREATE TABLE IF NOT EXISTS logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT,
@@ -21,22 +22,44 @@ def init_db():
         mood_score INTEGER,
         mood_text TEXT
     )
-    ''')
+    """)
     conn.commit()
     conn.close()
 
-def insert_log(date, workout_type, workout_minutes, calories_intake, sleep_hours, mood_score, mood_text):
+
+def insert_log(
+    date,
+    workout_type,
+    workout_minutes,
+    calories_intake,
+    sleep_hours,
+    mood_score,
+    mood_text,
+):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''
+    c.execute(
+        """
         INSERT INTO logs (date, workout_type, workout_minutes, calories_intake, sleep_hours, mood_score, mood_text)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (date, workout_type, workout_minutes, calories_intake, sleep_hours, mood_score, mood_text))
+    """,
+        (
+            date,
+            workout_type,
+            workout_minutes,
+            calories_intake,
+            sleep_hours,
+            mood_score,
+            mood_text,
+        ),
+    )
     conn.commit()
     conn.close()
+
 
 def fetch_logs():
     import pandas as pd
+
     conn = sqlite3.connect(DB_PATH)
     df = pd.read_sql_query("SELECT * FROM logs ORDER BY date DESC", conn)
     conn.close()
