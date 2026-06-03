@@ -62,11 +62,25 @@ jobs:
           exit-code: 1
           severity: HIGH,CRITICAL
 
-  # ── Stage 4: Docker Build Check ───────────────────────────────────
+  # ── Stage 4: SAST (Bearer) ────────────────────────────────────────
+  bearer:
+    name: SAST (Bearer)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Bearer
+        uses: bearer/bearer-action@v2
+        with:
+          path: .
+          exit-code: 1
+          severity: critical,high
+
+  # ── Stage 5: Docker Build Check ───────────────────────────────────
   docker-build:
     name: Docker Build
     runs-on: ubuntu-latest
-    needs: [lint, security, trivy]
+    needs: [lint, security, trivy, bearer]
     steps:
       - uses: actions/checkout@v4
 
