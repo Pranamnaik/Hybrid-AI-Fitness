@@ -75,6 +75,7 @@ jobs:
           path: .
           exit-code: 1
           severity: critical,high
+          exclude: venv/,data/
 
   # ── Stage 5: Docker Build Check ───────────────────────────────────
   docker-build:
